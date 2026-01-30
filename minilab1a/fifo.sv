@@ -15,26 +15,32 @@ module FIFO
 );
 
 logic [DATA_WIDTH-1:0] queue [DEPTH];
-logic [$clog2(DEPTH)+1:0] head, tail, size;
+logic [$clog2(DEPTH):0] head, tail, size;
 
 always_ff @(posedge clk, negedge rst_n) begin
   if (!rst_n) begin
     head <= '0;
     tail <= '0;
     size <= '0;
+  end else begin
+    if (wren && !full && rden && !empty) begin
+      queue[tail] <= i_data;
+      tail <= (tail + 1) % DEPTH;
+      head <= (head + 1) % DEPTH;
+      // size remains same
+    end else if (wren && !full) begin
+      queue[tail] <= i_data;
+      tail <= (tail + 1) % DEPTH;
+      size <= size + 1;
+    end else if (rden && !empty) begin
+      head <= (head + 1) % DEPTH;
+      size <= size - 1;
+    end
   end
-  else if (rden) begin
-    o_data <= queue[head];
-    head <= (head + 1) % DEPTH;
-    size <= size - 1;
-  end
-  else if (wren) begin
-    queue[tail] <= i_data;
-    tail <= (tail + 1) % DEPTH;
-    size <= size + 1;
-  end
-  full <= size == DEPTH;
-  empty <= size == 0;
 end
+
+assign o_data = queue[head];
+assign full = (size == DEPTH);
+assign empty = (size == 0);
 
 endmodule
