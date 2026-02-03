@@ -14,16 +14,15 @@ module FIFO
   output logic empty
 );
 
-fifo_ip fifo(
-  .aclr(~rst_n),
-  .data(i_data),
-  .rdclk(clk),
-  .rdreq(rden),
-  .wrclk(clk),
-  .wrreq(wren),
-  .q(o_data),
-  .rdempty(empty),
-  .wrfull(full)
-);
+fifo_ip	fifo (
+	.clock ( clk ),
+	.data ( i_data ),
+	.rdreq ( rden ),
+	.sclr ( ~rst_n ),
+	.wrreq ( wren ),
+	.empty ( empty ),
+	.full ( full ),
+	.q ( o_data )
+	);
 
 endmodule
