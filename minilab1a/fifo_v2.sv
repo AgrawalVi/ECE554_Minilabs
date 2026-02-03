@@ -1,4 +1,4 @@
-module FIFO
+module FIFO_v2
 #(
   parameter DEPTH=8,
   parameter DATA_WIDTH=8
@@ -14,7 +14,7 @@ module FIFO
   output logic empty
 );
 
-  fifo_ip fifo (
+  fifo_v2 fifo (
     .aclr(~rst_n),
     .clock(clk),
     .data(i_data),

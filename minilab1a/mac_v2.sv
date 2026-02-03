@@ -1,4 +1,4 @@
-module MAC #
+module MAC_v2 #
 (
 parameter DATA_WIDTH = 8
 )
