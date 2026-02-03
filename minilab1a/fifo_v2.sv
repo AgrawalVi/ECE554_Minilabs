@@ -16,12 +16,13 @@ module FIFO_v2
 
   fifo_ip fifo (
     .aclr(~rst_n),
-    .clock(clk),
+    .rdclk(clk),
+    .wrclk(clk),
     .data(i_data),
     .rdreq(rden),
     .wrreq(wren),
-    .empty(empty),
-    .full(full),
+    .rdempty(empty),
+    .wrfull(full),
     .q(o_data)
   );
 
