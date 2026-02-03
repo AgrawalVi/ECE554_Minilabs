@@ -38,7 +38,6 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module fifo_ip (
-	aclr,
 	data,
 	rdclk,
 	rdreq,
@@ -48,7 +47,6 @@ module fifo_ip (
 	rdempty,
 	wrfull);
 
-	input	  aclr;
 	input	[7:0]  data;
 	input	  rdclk;
 	input	  rdreq;
@@ -57,13 +55,6 @@ module fifo_ip (
 	output	[7:0]  q;
 	output	  rdempty;
 	output	  wrfull;
-`ifndef ALTERA_RESERVED_QIS
-// synopsys translate_off
-`endif
-	tri0	  aclr;
-`ifndef ALTERA_RESERVED_QIS
-// synopsys translate_on
-`endif
 
 	wire [7:0] sub_wire0;
 	wire  sub_wire1;
@@ -73,7 +64,6 @@ module fifo_ip (
 	wire  wrfull = sub_wire2;
 
 	dcfifo	dcfifo_component (
-				.aclr (aclr),
 				.data (data),
 				.rdclk (rdclk),
 				.rdreq (rdreq),
@@ -82,6 +72,7 @@ module fifo_ip (
 				.q (sub_wire0),
 				.rdempty (sub_wire1),
 				.wrfull (sub_wire2),
+				.aclr (),
 				.eccstatus (),
 				.rdfull (),
 				.rdusedw (),
@@ -94,12 +85,10 @@ module fifo_ip (
 		dcfifo_component.lpm_type = "dcfifo",
 		dcfifo_component.lpm_width = 8,
 		dcfifo_component.lpm_widthu = 3,
-		dcfifo_component.overflow_checking = "OFF",
+		dcfifo_component.overflow_checking = "ON",
 		dcfifo_component.rdsync_delaypipe = 3,
-		dcfifo_component.read_aclr_synch = "OFF",
-		dcfifo_component.underflow_checking = "OFF",
+		dcfifo_component.underflow_checking = "ON",
 		dcfifo_component.use_eab = "ON",
-		dcfifo_component.write_aclr_synch = "OFF",
 		dcfifo_component.wrsync_delaypipe = 3;
 
 
@@ -121,14 +110,14 @@ endmodule
 // Retrieval info: PRIVATE: LE_BasedFIFO NUMERIC "0"
 // Retrieval info: PRIVATE: LegacyRREQ NUMERIC "1"
 // Retrieval info: PRIVATE: MAX_DEPTH_BY_9 NUMERIC "0"
-// Retrieval info: PRIVATE: OVERFLOW_CHECKING NUMERIC "1"
+// Retrieval info: PRIVATE: OVERFLOW_CHECKING NUMERIC "0"
 // Retrieval info: PRIVATE: Optimize NUMERIC "2"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
-// Retrieval info: PRIVATE: UNDERFLOW_CHECKING NUMERIC "1"
+// Retrieval info: PRIVATE: UNDERFLOW_CHECKING NUMERIC "0"
 // Retrieval info: PRIVATE: UsedW NUMERIC "1"
 // Retrieval info: PRIVATE: Width NUMERIC "8"
-// Retrieval info: PRIVATE: dc_aclr NUMERIC "1"
+// Retrieval info: PRIVATE: dc_aclr NUMERIC "0"
 // Retrieval info: PRIVATE: diff_widths NUMERIC "0"
 // Retrieval info: PRIVATE: msb_usedw NUMERIC "0"
 // Retrieval info: PRIVATE: output_width NUMERIC "8"
@@ -147,14 +136,11 @@ endmodule
 // Retrieval info: CONSTANT: LPM_TYPE STRING "dcfifo"
 // Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "8"
 // Retrieval info: CONSTANT: LPM_WIDTHU NUMERIC "3"
-// Retrieval info: CONSTANT: OVERFLOW_CHECKING STRING "OFF"
+// Retrieval info: CONSTANT: OVERFLOW_CHECKING STRING "ON"
 // Retrieval info: CONSTANT: RDSYNC_DELAYPIPE NUMERIC "3"
-// Retrieval info: CONSTANT: READ_ACLR_SYNCH STRING "OFF"
-// Retrieval info: CONSTANT: UNDERFLOW_CHECKING STRING "OFF"
+// Retrieval info: CONSTANT: UNDERFLOW_CHECKING STRING "ON"
 // Retrieval info: CONSTANT: USE_EAB STRING "ON"
-// Retrieval info: CONSTANT: WRITE_ACLR_SYNCH STRING "OFF"
 // Retrieval info: CONSTANT: WRSYNC_DELAYPIPE NUMERIC "3"
-// Retrieval info: USED_PORT: aclr 0 0 0 0 INPUT GND "aclr"
 // Retrieval info: USED_PORT: data 0 0 8 0 INPUT NODEFVAL "data[7..0]"
 // Retrieval info: USED_PORT: q 0 0 8 0 OUTPUT NODEFVAL "q[7..0]"
 // Retrieval info: USED_PORT: rdclk 0 0 0 0 INPUT NODEFVAL "rdclk"
@@ -163,7 +149,6 @@ endmodule
 // Retrieval info: USED_PORT: wrclk 0 0 0 0 INPUT NODEFVAL "wrclk"
 // Retrieval info: USED_PORT: wrfull 0 0 0 0 OUTPUT NODEFVAL "wrfull"
 // Retrieval info: USED_PORT: wrreq 0 0 0 0 INPUT NODEFVAL "wrreq"
-// Retrieval info: CONNECT: @aclr 0 0 0 0 aclr 0 0 0 0
 // Retrieval info: CONNECT: @data 0 0 8 0 data 0 0 8 0
 // Retrieval info: CONNECT: @rdclk 0 0 0 0 rdclk 0 0 0 0
 // Retrieval info: CONNECT: @rdreq 0 0 0 0 rdreq 0 0 0 0
@@ -176,6 +161,6 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip.inc FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip_inst.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip_inst.v FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL fifo_ip_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf
