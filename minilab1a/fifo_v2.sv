@@ -14,7 +14,7 @@ module FIFO_v2
   output logic empty
 );
 
-  fifo_v2 fifo (
+  fifo_ip fifo (
     .aclr(~rst_n),
     .clock(clk),
     .data(i_data),
