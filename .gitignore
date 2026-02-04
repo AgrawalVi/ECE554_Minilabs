@@ -18,3 +18,4 @@ minilab1a/c5_pin_model_dump.txt
 *.sof
 *.sta.rpt
 *.sta.summary
+work/
