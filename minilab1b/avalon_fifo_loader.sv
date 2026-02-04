@@ -26,6 +26,19 @@ module avalon_fifo_loader (
 );
     localparam int N = 8;
 
+    logic [N-1:0] a_full_reg;
+    logic b_full_reg;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            a_full_reg <= '0;
+            b_full_reg <= '0;
+        end else begin
+            a_full_reg <= a_full;
+            b_full_reg <= b_full;
+        end
+    end
+
     // Loader states
     localparam logic [3:0] LIdle      = 4'd0;
     localparam logic [3:0] LIssueRead = 4'd1;
@@ -33,7 +46,7 @@ module avalon_fifo_loader (
     localparam logic [3:0] LPushA     = 4'd3;
     localparam logic [3:0] LPushB     = 4'd4;
     localparam logic [3:0] LDone      = 4'd5;
-
+    
     logic [3:0] state;
     logic [3:0] row_idx;   // 0..8 (8 is B vector)
     logic [3:0] byte_idx;  // 0..7
@@ -72,14 +85,16 @@ module avalon_fifo_loader (
                 avm_read    = 1'b1;
             end
             LPushA: begin
-                // Only write when FIFO not full
-                if (!a_full[row_idx]) begin
-                    a_wren[row_idx] = 1'b1;
-                    a_data[row_idx] = sel_byte(row_buf, byte_idx);
+                // Drive each wren[k] only by its own full[k] signal to avoid large muxes
+                for (int i = 0; i < N; i++) begin
+                    if (row_idx == i) begin
+                        a_wren[i] = !a_full_reg[i];
+                        a_data[i] = sel_byte(row_buf, byte_idx);
+                    end
                 end
             end
             LPushB: begin
-                if (!b_full) begin
+                if (!b_full_reg) begin
                     b_wren = 1'b1;
                     b_data = sel_byte(row_buf, byte_idx);
                 end
@@ -128,7 +143,7 @@ module avalon_fifo_loader (
 
                 LPushA: begin
                     // Advance only when the write actually happens (FIFO not full)
-                    if (!a_full[row_idx]) begin
+                    if (!a_full_reg[row_idx]) begin
                         if (byte_idx == 4'd7) begin
                             byte_idx <= 4'd0;
                             if (row_idx == 4'd7) begin
@@ -145,7 +160,7 @@ module avalon_fifo_loader (
                 end
 
                 LPushB: begin
-                    if (!b_full) begin
+                    if (!b_full_reg) begin
                         if (byte_idx == 4'd7) begin
                             state <= LDone;
                         end else begin
