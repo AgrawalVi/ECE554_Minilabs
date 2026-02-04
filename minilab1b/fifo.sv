@@ -46,6 +46,12 @@ always_ff @(posedge clk, negedge rst_n) begin
   end
 end
 
-assign o_data = queue[head];
+always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        o_data <= '0;
+    end else if (rden) begin
+        o_data <= queue[head];
+    end
+end
 
 endmodule
