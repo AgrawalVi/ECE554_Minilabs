@@ -40,6 +40,7 @@ module matrix_vector_multi (
     assign b_full_out = b_full;
 
     // External fill drives FIFO writes
+    genvar gi;
     generate
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_fill_map
             always_comb begin
@@ -53,7 +54,6 @@ module matrix_vector_multi (
         b_in   = b_data_in;
     end
 
-    genvar gi;
     generate
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_a_fifos
             FIFO #(
@@ -97,6 +97,13 @@ module matrix_vector_multi (
 
     // Stage 0 uses the FIFO output directly
     assign b_pipe[0] = b_out;
+
+    // Stages 1..7 use the registered B pipeline values
+    generate
+        for (gi = 1; gi < N; gi = gi + 1) begin : gen_b_pipe
+            assign b_pipe[gi] = b_d[gi];
+        end
+    endgenerate
 
     generate
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_macs
@@ -197,11 +204,6 @@ module matrix_vector_multi (
                     b_d[si] <= b_d[si-1];
                 end
             end
-            // Connect registered B stages to b_pipe[1..7]
-            for (int si2 = 1; si2 < N; si2++) begin
-                b_pipe[si2] <= b_d[si2];
-            end
-
             case (state)
                 SWaitFull: begin
                     launch_count <= 4'd0;
