@@ -97,6 +97,7 @@ module matrix_vector_multi (
 
     // Stage 0 uses the FIFO output directly
     assign b_pipe[0] = b_out;
+    logic [DataWidth-1:0] b_d [1:N-1];
 
     // Stages 1..7 use the registered B pipeline values
     generate
@@ -139,7 +140,6 @@ module matrix_vector_multi (
     // Propagation registers for stages 1..7 (stage 0 is combinational)
     logic [N-1:1] en_d;
     logic [N-1:1] clr_d;
-    logic [DataWidth-1:0] b_d [1:N-1];
 
     // Default comb assigns
     integer k;
