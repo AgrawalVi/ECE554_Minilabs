@@ -1,0 +1,43 @@
+I:/ece554/minilabs/minilab1b/mac.sv {1 {vlog -work work -vopt -sv -stats=none I:/ece554/minilabs/minilab1b/mac.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module MAC
+
+Top level modules:
+	MAC
+
+} {} {}} I:/ece554/minilabs/minilab1b/memory.v {1 {vlog -work work -vopt -stats=none I:/ece554/minilabs/minilab1b/memory.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module mem_wrapper
+
+Top level modules:
+	mem_wrapper
+
+} {} {}} I:/ece554/minilabs/minilab1b/avalon_fifo_loader.sv {1 {vlog -work work -vopt -sv -stats=none I:/ece554/minilabs/minilab1b/avalon_fifo_loader.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module avalon_fifo_loader
+
+Top level modules:
+	avalon_fifo_loader
+
+} {} {}} I:/ece554/minilabs/minilab1b/rom.v {1 {vlog -work work -vopt -stats=none I:/ece554/minilabs/minilab1b/rom.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module rom
+
+Top level modules:
+	rom
+
+} {} {}} I:/ece554/minilabs/minilab1b/matrix_vector_system_tb.sv {1 {vlog -work work -vopt -sv -stats=none I:/ece554/minilabs/minilab1b/matrix_vector_system_tb.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module matrix_vector_system_tb
+
+Top level modules:
+	matrix_vector_system_tb
+
+} {} {}} I:/ece554/minilabs/minilab1b/fifo.sv {1 {vlog -work work -vopt -sv -stats=none I:/ece554/minilabs/minilab1b/fifo.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module FIFO
+
+Top level modules:
+	FIFO
+
+} {} {}}

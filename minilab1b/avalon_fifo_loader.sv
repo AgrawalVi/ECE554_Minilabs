@@ -11,7 +11,7 @@ module avalon_fifo_loader (
 
     // FIFO fill interface (to matrix_vector_multi)
     output logic [7:0]  a_wren,
-    output logic [7:0]  a_data [8],
+    output logic [63:0] a_data_out, // Flattened: 8 * 8 bits
     output logic        b_wren,
     output logic [7:0]  b_data,
 
@@ -38,6 +38,8 @@ module avalon_fifo_loader (
     logic [3:0] row_idx;   // 0..8 (8 is B vector)
     logic [3:0] byte_idx;  // 0..7
     logic [63:0] row_buf;
+
+    logic [7:0] a_data [N]; // Internal array
 
     assign dbg_state = state;
     assign dbg_row   = row_idx;
@@ -86,6 +88,13 @@ module avalon_fifo_loader (
             end
         endcase
     end
+
+    // Flatten a_data array to a_data_out output
+    generate
+        for (gi = 0; gi < N; gi = gi + 1) begin : gen_out_map
+            assign a_data_out[gi*8 +: 8] = a_data[gi];
+        end
+    endgenerate
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

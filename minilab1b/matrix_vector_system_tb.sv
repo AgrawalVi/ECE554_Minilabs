@@ -25,7 +25,7 @@ module matrix_vector_system_tb;
 
     // Loader -> compute FIFO fill
     logic [7:0] a_wren_in;
-    logic [7:0] a_data_in [8];
+    logic [63:0] a_data_in_flat; // Flattened
     logic       b_wren_in;
     logic [7:0] b_data_in;
 
@@ -40,8 +40,17 @@ module matrix_vector_system_tb;
     logic [3:0]  l_byte;
 
     logic        done;
-    logic [23:0] C_matrix [8];
+    logic [191:0] C_matrix_flat; // Flattened
     logic [2:0]  c_state;
+
+    // Arrays for printing
+    logic [23:0] C_matrix [8];
+    genvar gi;
+    generate
+        for (gi = 0; gi < 8; gi = gi + 1) begin : gen_out_map
+            assign C_matrix[gi] = C_matrix_flat[gi*24 +: 24];
+        end
+    endgenerate
 
     // Instantiate provided Avalon-MM slave memory
     mem_wrapper mem (
@@ -66,7 +75,7 @@ module matrix_vector_system_tb;
         .avm_waitrequest(waitrequest),
 
         .a_wren(a_wren_in),
-        .a_data(a_data_in),
+        .a_data_out(a_data_in_flat),
         .b_wren(b_wren_in),
         .b_data(b_data_in),
 
@@ -85,12 +94,12 @@ module matrix_vector_system_tb;
         .KEY(KEY),
 
         .a_wren_in(a_wren_in),
-        .a_data_in(a_data_in),
+        .a_data_in(a_data_in_flat),
         .b_wren_in(b_wren_in),
         .b_data_in(b_data_in),
 
         .done(done),
-        .C_matrix(C_matrix),
+        .C_matrix_out(C_matrix_flat),
         .dbg_state(c_state),
         .a_full_out(a_full),
         .b_full_out(b_full)

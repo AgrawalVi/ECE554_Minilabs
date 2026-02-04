@@ -3,12 +3,12 @@ module matrix_vector_multi (
     input  logic [3:0]  KEY,
     // FIFO fill interface (from Avalon loader)
     input  logic [7:0]  a_wren_in,
-    input  logic [7:0]  a_data_in [8],
+    input  logic [63:0] a_data_in, // Flattened: 8 * 8 bits
     input  logic        b_wren_in,
     input  logic [7:0]  b_data_in,
 
     output logic        done,
-    output logic [23:0] C_matrix [8],
+    output logic [191:0] C_matrix_out, // Flattened: 8 * 24 bits
     output logic [2:0]  dbg_state,
     output logic [7:0]  a_full_out,
     output logic        b_full_out
@@ -45,7 +45,7 @@ module matrix_vector_multi (
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_fill_map
             always_comb begin
                 a_wren[gi] = a_wren_in[gi];
-                a_in[gi]   = a_data_in[gi];
+                a_in[gi]   = a_data_in[gi*8 +: 8]; // Extract from flattened input
             end
         end
     endgenerate
@@ -122,10 +122,10 @@ module matrix_vector_multi (
         end
     endgenerate
 
-    // Export results
+    // Export results - Flattened
     generate
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_out
-            assign C_matrix[gi] = mac_cout[gi];
+            assign C_matrix_out[gi*24 +: 24] = mac_cout[gi];
         end
     endgenerate
 
