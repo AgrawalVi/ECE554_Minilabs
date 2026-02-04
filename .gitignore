@@ -13,7 +13,6 @@ minilab1a/c5_pin_model_dump.txt
 *.map.rpt
 *.map.summary
 *.pin
-*.qsf
 *.sld
 *.sof
 *.sta.rpt
