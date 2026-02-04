@@ -64,7 +64,7 @@ module avalon_fifo_loader (
         b_data = 8'h00;
 
         done = (state == LDone);
-
+        
         case (state)
             LIssueRead: begin
                 avm_address = {28'd0, row_idx[3:0]};
@@ -90,6 +90,7 @@ module avalon_fifo_loader (
     end
 
     // Flatten a_data array to a_data_out output
+    genvar gi;
     generate
         for (gi = 0; gi < N; gi = gi + 1) begin : gen_out_map
             assign a_data_out[gi*8 +: 8] = a_data[gi];
