@@ -137,9 +137,16 @@ module matrix_vector_multi (
 
     assign dbg_state = state;
 
-    // Propagation registers for stages 1..7 (stage 0 is combinational)
-    logic [N-1:1] en_d;
-    logic [N-1:1] clr_d;
+    // Propagation registers for stages 1..N+2 (stage 0 is registered)
+    // Stages 1..7 are for propagation, 8..10 for MAC pipeline drain
+    logic [N+2:1] en_d;
+    logic [N+2:1] clr_d;
+
+    logic mac_en0_reg, mac_clr0_reg;
+    assign mac_en[0] = mac_en0_reg;
+    assign mac_clr[0] = mac_clr0_reg;
+
+    logic all_a_full_reg, b_full_reg;
 
     // Default comb assigns
     integer k;
@@ -149,21 +156,7 @@ module matrix_vector_multi (
         end
         b_rden = 1'b0;
 
-        // MAC stage enables/clears
-        mac_en   = '0;
-        mac_clr  = '0;
-
         done = (state == SDone);
-
-        // EXEC stage 0 drive (stages 1..7 come from regs)
-        if (state == SExec) begin
-            mac_en[0]  = (launch_count < N) && !b_empty;
-            mac_clr[0] = 1'b0;
-        end
-        if (state == SClr) begin
-            mac_en[0]  = 1'b0;
-            mac_clr[0] = 1'b1;
-        end
 
         // Map registered stage signals (1..7)
         for (k = 1; k < N; k = k + 1) begin
@@ -184,13 +177,21 @@ module matrix_vector_multi (
             state        <= SWaitFull;
             launch_count <= 4'd0;
 
+            mac_en0_reg  <= '0;
+            mac_clr0_reg <= '0;
             en_d  <= '0;
             clr_d <= '0;
+            all_a_full_reg <= '0;
+            b_full_reg     <= '0;
             for (int bi = 1; bi < N; bi++) begin
                 b_d[bi] <= '0;
             end
         end else begin
-            // Shift En/Clr/B pipelines for stages 1..7
+            // Register FIFO full signals for FSM
+            all_a_full_reg <= (&a_full);
+            b_full_reg     <= b_full;
+
+            // Shift En/Clr/B pipelines for stages 1..N+2
             // Stage 1 receives stage-0 signals; stage i receives stage (i-1) delayed.
             en_d[1]  <= mac_en[0];
             clr_d[1] <= mac_clr[0];
@@ -204,24 +205,35 @@ module matrix_vector_multi (
                     b_d[si] <= b_d[si-1];
                 end
             end
+            for (int si = N; si <= N+2; si++) begin
+                en_d[si]  <= en_d[si-1];
+                clr_d[si] <= clr_d[si-1];
+            end
+
+            // Default register updates
+            mac_en0_reg  <= 1'b0;
+            mac_clr0_reg <= 1'b0;
+
             case (state)
                 SWaitFull: begin
                     launch_count <= 4'd0;
-                    if ((&a_full) && b_full) begin
+                    if (all_a_full_reg && b_full_reg) begin
                         state <= SClr;
                     end
                 end
                 SClr: begin
                     // Single cycle: Clr propagates; next cycle start executing
+                    mac_clr0_reg <= 1'b1;
                     state        <= SExec;
                     launch_count <= 4'd0;
                 end
                 SExec: begin
-                    if (mac_en[0]) begin
+                    if ((launch_count < N) && !b_empty) begin
+                        mac_en0_reg  <= 1'b1;
                         launch_count <= launch_count + 1'b1;
                     end
                     // Done when all 8 B elements launched and the pipeline is drained
-                    if ((launch_count >= N) && (en_d == '0)) begin
+                    if ((launch_count >= N) && (en_d == '0) && (mac_en0_reg == 1'b0)) begin
                         state <= SDone;
                     end
                 end
