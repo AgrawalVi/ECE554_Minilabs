@@ -1,5 +1,5 @@
 Resource Usage Summary report for Minilab0
-Wed Feb  4 15:57:21 2026
+Thu Feb  5 18:23:05 2026
 Quartus Prime Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
 
 
@@ -36,27 +36,27 @@ on the Quartus Prime software download page.
 +---------------------------------------------+----------------+
 ; Resource                                    ; Usage          ;
 +---------------------------------------------+----------------+
-; Estimate of Logic utilization (ALMs needed) ; 85             ;
+; Estimate of Logic utilization (ALMs needed) ; 110            ;
 ;                                             ;                ;
-; Combinational ALUT usage for logic          ; 167            ;
-;     -- 7 input functions                    ; 0              ;
-;     -- 6 input functions                    ; 3              ;
-;     -- 5 input functions                    ; 4              ;
-;     -- 4 input functions                    ; 92             ;
-;     -- <=3 input functions                  ; 68             ;
+; Combinational ALUT usage for logic          ; 169            ;
+;     -- 7 input functions                    ; 14             ;
+;     -- 6 input functions                    ; 16             ;
+;     -- 5 input functions                    ; 9              ;
+;     -- 4 input functions                    ; 86             ;
+;     -- <=3 input functions                  ; 44             ;
 ;                                             ;                ;
-; Dedicated logic registers                   ; 62             ;
+; Dedicated logic registers                   ; 129            ;
 ;                                             ;                ;
 ; I/O pins                                    ; 70             ;
 ; Total MLAB memory bits                      ; 0              ;
-; Total block memory bits                     ; 128            ;
+; Total block memory bits                     ; 64             ;
 ;                                             ;                ;
 ; Total DSP Blocks                            ; 1              ;
 ;                                             ;                ;
 ; Maximum fan-out node                        ; CLOCK_50~input ;
-; Maximum fan-out                             ; 78             ;
-; Total fan-out                               ; 1086           ;
-; Average fan-out                             ; 2.81           ;
+; Maximum fan-out                             ; 137            ;
+; Total fan-out                               ; 1299           ;
+; Average fan-out                             ; 2.91           ;
 +---------------------------------------------+----------------+
 
 
