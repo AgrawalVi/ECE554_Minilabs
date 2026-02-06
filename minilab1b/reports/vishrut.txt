@@ -1,0 +1,14 @@
+I tested the design via the testbench that we created. We instantiated the matrix multiplier, the memory, and the avalon loader. 
+We then ran the testbench and checked the results, which were correct. A snapshot of the waveforms can be found in the screenshots folder.
+
+We fixed the design to meet the timing constraints by adding pipeline registers to the mac and avalon loader. 
+
+We tested the design on the FPGA and it worked correctly. A photo is in the screenshots folder.
+
+For signaltap, we set a trigger on the readdatavalid signal and checked readdata when that went high. We validated the data to be correct.
+
+We had a lot of difficulties with pipelining the design. We had to make a lot of iterations to get our fmax to get above 200Mhz in the worst case. 
+We were at 150Mhz in the worst case and we were able to get it above 200Mhz by adding pipelining 
+
+Another thign we had in our FIFO before was a modulus, which is completely unnecessary and we removed it. This also helped get our fmax up
+and also reduced our resource usage since we're not just using standard overflow to manage the tail and head of the cirular buffer in the fifo.

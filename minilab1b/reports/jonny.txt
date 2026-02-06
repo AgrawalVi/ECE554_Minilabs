@@ -1,0 +1,14 @@
+I verified the design by running our custom testbench, where we instantiated the matrix multiplier along with the memory component and 
+the Avalon loader. After executing the testbench, we observed that the outcomes were correct.
+
+To address timing issues, we introduced additional pipeline registers in both the MAC and Avalon loader sections 
+of the design, which allowed us to meet our timing requirements.
+
+The design was also tested on the FPGA hardware, and it operated as expected; a picture of this is included in the screenshots directory.
+
+During SignalTap debugging, we configured a trigger on the 'readdatavalid' signal and monitored 'readdata' as it became valid,
+confirming the outputs matched our expectations.
+
+Implementing adequate pipelining was challenging. We went through multiple iterations to improve the
+maximum achievable clock frequency (fmax). Initially, the design could only run as high as 150 MHz 
+in the worst case, but after careful optimization and the addition of pipelines, we were able to exceed 200 MHz.

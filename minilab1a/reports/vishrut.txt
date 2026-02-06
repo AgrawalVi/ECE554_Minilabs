@@ -1,0 +1,12 @@
+created github repo with vscode build in integration.
+
+the snapshot of the simulation log and waveform can be found in screenshots/ip_simulation and screenshots/our_simulation respectively. 
+
+the simulation log shows that the macout value is 1B58 which is correct, and it is what was seen on our FPGA during the lab.
+
+The resource usage is as follows:
+
+ours: 110
+ip: 85
+
+This makes sense because real professionals are writing the IPs and I'd really hope that they can do a better job than we can. We also used 2 modulos that were not necessary in our FIFO design, which could contribute to the increase in resource usage.

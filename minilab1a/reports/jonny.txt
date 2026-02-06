@@ -1,0 +1,7 @@
+vishrut created the github repository assuming with github.com or vscode's integrations.
+
+the simulation for both designs ran successfully and can be found in the screenshots folder
+
+The resource usage is as follows:
+
+we had 110 ALMs and the ip one had 85 ALMs. This makes sense because the IPs are what the industry uses and they are likely much more optimized than our design.
