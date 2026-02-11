@@ -311,7 +311,7 @@ CCD_Capture			u3	(
 						   );
 //D5M raw date convert to RGB data
 
-RAW2RGB				u4	(	
+RAW2GREY				u4	(	
 							.iCLK(D5M_PIXLCLK),
 							.iRST(DLY_RST_1),
 							.iDATA(mCCD_DATA),
