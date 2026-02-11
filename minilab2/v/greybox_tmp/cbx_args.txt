@@ -5,6 +5,7 @@ NUMBER_OF_TAPS=2
 TAP_DISTANCE=640
 WIDTH=12
 DEVICE_FAMILY="Cyclone V"
+clken
 clock
 shiftin
 shiftout

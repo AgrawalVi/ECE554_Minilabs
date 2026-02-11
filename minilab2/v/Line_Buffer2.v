@@ -38,15 +38,24 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module Line_Buffer2 (
+	clken,
 	clock,
 	shiftin,
 	shiftout,
 	taps);
 
+	input	  clken;
 	input	  clock;
 	input	[11:0]  shiftin;
 	output	[11:0]  shiftout;
 	output	[23:0]  taps;
+`ifndef ALTERA_RESERVED_QIS
+// synopsys translate_off
+`endif
+	tri1	  clken;
+`ifndef ALTERA_RESERVED_QIS
+// synopsys translate_on
+`endif
 
 	wire [11:0] sub_wire0;
 	wire [23:0] sub_wire1;
@@ -54,6 +63,7 @@ module Line_Buffer2 (
 	wire [23:0] taps = sub_wire1[23:0];
 
 	altshift_taps	ALTSHIFT_TAPS_component (
+				.clken (clken),
 				.clock (clock),
 				.shiftin (shiftin),
 				.shiftout (sub_wire0),
@@ -61,7 +71,6 @@ module Line_Buffer2 (
 				// synopsys translate_off
 				,
 				.aclr (),
-				.clken (),
 				.sclr ()
 				// synopsys translate_on
 				);
@@ -80,7 +89,7 @@ endmodule
 // CNX file retrieval info
 // ============================================================
 // Retrieval info: PRIVATE: ACLR NUMERIC "0"
-// Retrieval info: PRIVATE: CLKEN NUMERIC "0"
+// Retrieval info: PRIVATE: CLKEN NUMERIC "1"
 // Retrieval info: PRIVATE: GROUP_TAPS NUMERIC "0"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 // Retrieval info: PRIVATE: NUMBER_OF_TAPS NUMERIC "2"
@@ -95,10 +104,12 @@ endmodule
 // Retrieval info: CONSTANT: NUMBER_OF_TAPS NUMERIC "2"
 // Retrieval info: CONSTANT: TAP_DISTANCE NUMERIC "640"
 // Retrieval info: CONSTANT: WIDTH NUMERIC "12"
+// Retrieval info: USED_PORT: clken 0 0 0 0 INPUT VCC "clken"
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL "clock"
 // Retrieval info: USED_PORT: shiftin 0 0 12 0 INPUT NODEFVAL "shiftin[11..0]"
 // Retrieval info: USED_PORT: shiftout 0 0 12 0 OUTPUT NODEFVAL "shiftout[11..0]"
 // Retrieval info: USED_PORT: taps 0 0 24 0 OUTPUT NODEFVAL "taps[23..0]"
+// Retrieval info: CONNECT: @clken 0 0 0 0 clken 0 0 0 0
 // Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
 // Retrieval info: CONNECT: @shiftin 0 0 12 0 shiftin 0 0 12 0
 // Retrieval info: CONNECT: shiftout 0 0 12 0 @shiftout 0 0 12 0
