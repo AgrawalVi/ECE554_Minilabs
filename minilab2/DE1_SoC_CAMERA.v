@@ -255,6 +255,10 @@ wire	       [9:0]			oVGA_R;   				//	VGA Red[9:0]
 wire	       [9:0]			oVGA_G;	 				//	VGA Green[9:0]
 wire	       [9:0]			oVGA_B;   				//	VGA Blue[9:0]
 
+// Conv (3x3) output – greyscale stream to SDRAM
+wire	       [11:0]			conv_data;
+wire								conv_dval;
+
 //power on start
 wire             				auto_start;
 //=======================================================
@@ -324,6 +328,16 @@ RAW2GREY				u4	(
 							.iY_Cont(Y_Cont)
 						   );
 
+// 3x3 convolution (greyscale); output to SDRAM
+Conv					u4_conv	(
+							.iCLK(D5M_PIXLCLK),
+							.iRST(DLY_RST_1),
+							.iDATA(sCCD_R),
+							.iDVAL(sCCD_DVAL),
+							.oDATA(conv_data),
+							.oDVAL(conv_dval)
+						   );
+
 //Frame count display
 SEG7_LUT_6 			u5	(	
 							.oSEG0(HEX0),.oSEG1(HEX1),
@@ -349,18 +363,18 @@ Sdram_Control	   u7	(	//	HOST Side
 						   .RESET_N(KEY[0]),
 							.CLK(sdram_ctrl_clk),
 
-							//	FIFO Write Side 1
-							.WR1_DATA({1'b0,sCCD_G[11:7],sCCD_B[11:2]}),
-							.WR1(sCCD_DVAL),
+							//	FIFO Write Side 1 (convolved greyscale)
+							.WR1_DATA({1'b0,conv_data[11:7],conv_data[11:2]}),
+							.WR1(conv_dval),
 							.WR1_ADDR(0),
                      .WR1_MAX_ADDR(640*480),
 						   .WR1_LENGTH(8'h50),
 		               .WR1_LOAD(!DLY_RST_0),
 							.WR1_CLK(~D5M_PIXLCLK),
 
-							//	FIFO Write Side 2
-							.WR2_DATA({1'b0,sCCD_G[6:2],sCCD_R[11:2]}),
-							.WR2(sCCD_DVAL),
+							//	FIFO Write Side 2 (convolved greyscale)
+							.WR2_DATA({1'b0,conv_data[6:2],conv_data[11:2]}),
+							.WR2(conv_dval),
 							.WR2_ADDR(23'h100000),
 							.WR2_MAX_ADDR(23'h100000+640*480),
 							.WR2_LENGTH(8'h50),

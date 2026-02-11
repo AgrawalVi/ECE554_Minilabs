@@ -752,6 +752,7 @@ set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 
 set_global_assignment -name VERILOG_FILE v/RAW2GREY.v
+set_global_assignment -name VERILOG_FILE v/Conv.v
 set_global_assignment -name VERILOG_FILE v/VGA_Controller.v
 set_global_assignment -name VERILOG_FILE v/SEG7_LUT.v
 set_global_assignment -name VERILOG_FILE v/Reset_Delay.v
