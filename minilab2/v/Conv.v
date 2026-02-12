@@ -13,11 +13,17 @@ module Conv (
 	output        oDVAL
 );
 
+	// // ----- Hardcoded 3x3 filter (change these to change the kernel) -----
+	// // Default: simple sharpen-like (center 9, neighbors -1)
+	// localparam signed [11:0] F00 = -1, F01 = 0, F02 = 1;
+	// localparam signed [11:0] F10 = -2, F11 = 0, F12 = 2;
+	// localparam signed [11:0] F20 = -1, F21 = 0, F22 = 1;
+
 	// ----- Hardcoded 3x3 filter (change these to change the kernel) -----
 	// Default: simple sharpen-like (center 9, neighbors -1)
-	localparam signed [7:0] F00 = -1, F01 = -1, F02 = -1;
-	localparam signed [7:0] F10 = -1, F11 =  9, F12 = -1;
-	localparam signed [7:0] F20 = -1, F21 = -1, F22 = -1;
+	localparam signed [11:0] F00 = -1, F01 = -2, F02 = -1;
+	localparam signed [11:0] F10 =  0, F11 =  0, F12 =  0;
+	localparam signed [11:0] F20 =  1, F21 =  2, F22 =  1;
 
 	// Line_Buffer2: taps at 640 and 1280 -> row y-1 and y-2
 	wire [11:0] shiftout;
@@ -90,8 +96,8 @@ module Conv (
 			out_r <= 0;
 		else if (dval_r3) begin
 			if (sum < 0)
-				out_r <= 12'd0;
-			else if (sum > 4095)
+				out_r <= -1*sum[11:0];
+			if (sum > 4095)
 				out_r <= 12'd4095;
 			else
 				out_r <= sum[11:0];
