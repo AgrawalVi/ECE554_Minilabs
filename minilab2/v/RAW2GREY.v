@@ -126,8 +126,8 @@ begin
 			mCCD_G	<=	mDATAd_0+mDATA_1;
 			mCCD_B	<=	mDATA_0;
 		end
-		mGrey <= (mCCD_R + (mCCD_G[12:1]) + mCCD_B) / 3;
-		// mGrey <= (77*mCCD_R + 150*(mCCD_G[12:1]) + 29*(mCCD_B)) >> 8;
+		// mGrey <= ((mCCD_R + (mCCD_G[12:1]) + mCCD_B) / 3);
+		mGrey <= (77*mCCD_R + 150*(mCCD_G[12:1]) + 29*(mCCD_B)) >> 8;
 	end
 end
 

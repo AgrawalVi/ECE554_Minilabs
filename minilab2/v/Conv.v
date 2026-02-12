@@ -84,9 +84,9 @@ module Conv (
 	end
 
 	// Multiply-accumulate (pixel 12b unsigned, filter 8b signed -> product 20b signed; sum of 9 -> ~24b)
-	wire signed [19:0] m00 = p00_r * F00, m01 = p01_r * F01, m02 = p02_r * F02;
-	wire signed [19:0] m10 = p10_r * F10, m11 = p11_r * F11, m12 = p12_r * F12;
-	wire signed [19:0] m20 = p20_r * F20, m21 = p21_r * F21, m22 = p22_r * F22;
+	wire signed [19:0] m00 = $signed(p00_r) * F00, m01 = $signed(p01_r) * F01, m02 = $signed(p02_r) * F02;
+	wire signed [19:0] m10 = $signed(p10_r) * F10, m11 = $signed(p11_r) * F11, m12 = $signed(p12_r) * F12;
+	wire signed [19:0] m20 = $signed(p20_r) * F20, m21 = $signed(p21_r) * F21, m22 = $signed(p22_r) * F22;
 	wire signed [23:0] sum = m00 + m01 + m02 + m10 + m11 + m12 + m20 + m21 + m22;
 
 	// Saturate to [0, 4095] for 12-bit output
@@ -97,10 +97,10 @@ module Conv (
 		else if (dval_r3) begin
 			if (sum < 0)
 				out_r <= -1*sum[11:0];
-			if (sum > 4095)
-				out_r <= 12'd4095;
+			// if (sum > 4095)
+				// out_r <= 12'd4095;
 			else
-				out_r <= sum[11:0];
+			out_r <= sum[11:0];
 		end
 	end
 
