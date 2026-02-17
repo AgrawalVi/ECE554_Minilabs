@@ -1,29 +1,23 @@
-// --------------------------------------------------------------------
-// 3x3 Convolution using Line_Buffer2 (shift register with taps at 640 and 1280).
-// Image: 640x480 greyscale, 12-bit pixels, streamed in raster order.
-// Interface matches RAW2GREY: iCLK, iRST, iDATA[11:0], iDVAL -> oDATA[11:0], oDVAL.
-// --------------------------------------------------------------------
-
 module Conv (
 	input         iCLK,
 	input         iRST,
 	input  [11:0] iDATA,
 	input         iDVAL,
+	input         f_select,
 	output [11:0] oDATA,
 	output        oDVAL
 );
 
-	// // ----- Hardcoded 3x3 filter (change these to change the kernel) -----
-	// // Default: simple sharpen-like (center 9, neighbors -1)
-	// localparam signed [11:0] F00 = -1, F01 = 0, F02 = 1;
-	// localparam signed [11:0] F10 = -2, F11 = 0, F12 = 2;
-	// localparam signed [11:0] F20 = -1, F21 = 0, F22 = 1;
-
-	// ----- Hardcoded 3x3 filter (change these to change the kernel) -----
-	// Default: simple sharpen-like (center 9, neighbors -1)
-	localparam signed [11:0] F00 = -1, F01 = -2, F02 = -1;
-	localparam signed [11:0] F10 =  0, F11 =  0, F12 =  0;
-	localparam signed [11:0] F20 =  1, F21 =  2, F22 =  1;
+	wire signed [11:0] F00, F01, F02, F10, F11, F12, F20, F21, F22;
+	assign F00 = f_select ? -1 : -1;
+	assign F01 = f_select ? 0 : -2;
+	assign F02 = f_select ? 1 : -1;
+	assign F10 = f_select ? -2 : 0;
+	assign F11 = f_select ? 0 : 0;
+	assign F12 = f_select ? 2 : 0;
+	assign F20 = f_select ? -1 : 1;
+	assign F21 = f_select ? 0 : 2;
+	assign F22 = f_select ? 1 : 1;
 
 	// Line_Buffer2: taps at 640 and 1280 -> row y-1 and y-2
 	wire [11:0] shiftout;
