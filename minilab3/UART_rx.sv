@@ -93,7 +93,7 @@ module UART_rx(
         end
         if (bit_cnt == 4'd10) begin
           next_state = IDLE;
-          set_rdy = '1;
+          if (rx_shft_reg[9]) set_rdy = '1; // Only valid if stop bit is 1
         end
       end
     endcase

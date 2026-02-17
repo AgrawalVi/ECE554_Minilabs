@@ -70,7 +70,7 @@ module UART_tx(
       end
       TRANSMITTING: begin
         transmitting = '1;
-        if (baud_cnt == 13'd5207) begin
+        if (baud_cnt == 4'd15 && brg_en) begin
           shift = '1;
           if (bit_cnt == 4'd9) begin
             next_state = IDLE;
