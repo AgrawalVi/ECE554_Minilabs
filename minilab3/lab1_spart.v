@@ -80,9 +80,7 @@ driver driver0( .clk(CLOCK_50),
                 .tbr(tbr),
                 .ioaddr(ioaddr),
                 .databus(databus)
-            );
-
-			
+            );			
 // Don't change the code below
 // display the baudrate on 7-seg display
 always@(*) begin

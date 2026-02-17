@@ -3,11 +3,12 @@ module UART_tx(
   input logic rst_n,
   input logic trmt,
   input logic [7:0] tx_data,
+  input logic brg_en,
   output logic tx_done,
   output logic TX
 );
   logic load, transmitting, set_done, shift;
-  logic [12:0] baud_cnt;
+  logic [3:0] baud_cnt;
   logic [8:0] tx_shft_reg;
   logic [3:0] bit_cnt;
 
@@ -22,7 +23,7 @@ module UART_tx(
   always_ff @(posedge clk, negedge rst_n) begin
     if (!rst_n) baud_cnt <= '0;
     else if (load || shift) baud_cnt <= '0;
-    else if (transmitting) baud_cnt <= baud_cnt + 1;
+    else if (transmitting && brg_en) baud_cnt <= baud_cnt + 1;
   end
 
   // shift register
@@ -43,7 +44,7 @@ module UART_tx(
 
   // tx_done SR flop
   always_ff @(posedge clk, negedge rst_n) begin
-    if (!rst_n) tx_done <= '0;
+    if (!rst_n) tx_done <= '1;
     else if (set_done) tx_done <= '1;
     else if (load) tx_done <= '0;
   end

@@ -21,7 +21,6 @@ module spart (
     input clk,
     input rst,
 
-
     //------------communicate to CPU-------------------------------
     input iocs,  //I/O Chip Select
 
@@ -64,51 +63,107 @@ module spart (
     //---------------------------------------------------------
 );
 
+    // Baud Rate Generator
     reg [15:0] div_buff;
-    reg [15:0] receive_buffer;
-    reg [15:0] transmit_buffer;
+    reg [15:0] brg_count;
+    wire brg_en;
 
+    // Internal signals
+    reg [7:0] tx_data_reg;
+    reg trmt;
+    reg clr_rdy;
+    wire [7:0] rx_data;
+    wire tx_done;
+    wire rx_rdy;
+
+    // Status signals
+    assign rda = rx_rdy;
+    assign tbr = tx_done;
+
+    // BRG logic
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            div_buff <= 16'd325; // Default for 50MHz, 9600 baud
+            brg_count <= 16'd325;
+        end else begin
+            // Division Buffer loading
+            if (iocs && !iorw) begin
+                if (ioaddr == 2'b10)
+                    div_buff[7:0] <= databus;
+                else if (ioaddr == 2'b11)
+                    div_buff[15:8] <= databus;
+            end
+
+            // Counter logic
+            if (brg_count == 16'd0)
+                brg_count <= div_buff;
+            else
+                brg_count <= brg_count - 16'd1;
+        end
+    end
+
+    assign brg_en = (brg_count == 16'd0);
+
+    // Bus Interface logic
     reg [7:0] databus_out;
-    reg databus_oe;
-    assign databus = databus_oe ? databus_out : 8'hZZ;
+    assign databus = (iocs && iorw) ? databus_out : 8'hZZ;
 
     always_comb begin
         databus_out = 8'h00;
-        databus_oe  = 1'b0;
-
+        clr_rdy = 1'b0;
         if (iocs && iorw) begin
-            databus_oe = 1'b1;
             case (ioaddr)
-                2'b00:   databus_out = receive_buffer[7:0];
-                2'b01:   databus_out = {6'd0, tbr, rda};
-                2'b10:   databus_out = div_buff[7:0];
-                2'b11:   databus_out = div_buff[15:8];
+                2'b00: begin
+                    databus_out = rx_data;
+                    clr_rdy = 1'b1;
+                end
+                2'b01: begin
+                    databus_out = {6'd0, tbr, rda};
+                end
+                2'b10: begin
+                    databus_out = div_buff[7:0];
+                end
+                2'b11: begin
+                    databus_out = div_buff[15:8];
+                end
                 default: databus_out = 8'h00;
             endcase
         end
     end
 
+    // Transmit logic
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            div_buff <= 16'd0;
-            receive_buffer <= 16'd0;
-            transmit_buffer <= 16'd0;
+            tx_data_reg <= 8'd0;
+            trmt <= 1'b0;
         end else begin
-            if (iocs && !iorw) begin
-                case (ioaddr)
-                    2'b00:   transmit_buffer <= {8'h00, databus};
-                    2'b10:   div_buff[7:0] <= databus;
-                    2'b11:   div_buff[15:8] <= databus;
-                    default: ;
-                endcase
+            trmt <= 1'b0; // Default pulse
+            if (iocs && !iorw && ioaddr == 2'b00) begin
+                tx_data_reg <= databus;
+                trmt <= 1'b1;
             end
         end
     end
 
+    // Instantiate UART components
+    UART_tx iTX (
+        .clk(clk),
+        .rst_n(!rst),
+        .trmt(trmt),
+        .tx_data(tx_data_reg),
+        .brg_en(brg_en),
+        .tx_done(tx_done),
+        .TX(txd)
+    );
 
-
-
-
-
+    UART_rx iRX (
+        .clk(clk),
+        .rst_n(!rst),
+        .RX(rxd),
+        .clr_rdy(clr_rdy),
+        .brg_en(brg_en),
+        .rdy(rx_rdy),
+        .rx_data(rx_data)
+    );
 
 endmodule

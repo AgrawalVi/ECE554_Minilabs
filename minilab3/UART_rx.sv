@@ -4,13 +4,14 @@ module UART_rx(
   input wire rst_n,
   input wire RX,
   input wire clr_rdy,
+  input wire brg_en,
   output logic rdy,
   output logic [7:0] rx_data
 );
 
   logic shift, start, receiving;
   logic [9:0] rx_shft_reg;
-  logic [12:0] baud_cnt;
+  logic [3:0] baud_cnt;
   logic [3:0] bit_cnt;
   logic set_rdy;
 
@@ -45,9 +46,9 @@ module UART_rx(
   // baud counter
   always_ff @(posedge clk, negedge rst_n) begin
     if (!rst_n) baud_cnt <= '0;
-    else if (start) baud_cnt <= 13'd2604;
-    else if (shift) baud_cnt <= 13'd5208;
-    else if (receiving) baud_cnt <= baud_cnt - 1;
+    else if (start) baud_cnt <= 4'd7;
+    else if (shift) baud_cnt <= 4'd15;
+    else if (receiving && brg_en) baud_cnt <= baud_cnt - 1;
   end
 
   // bit counter
@@ -87,7 +88,7 @@ module UART_rx(
       end
       RECEIVING: begin
         receiving = '1;  // Enable baud counter to decrement
-        if (baud_cnt == 13'd0) begin
+        if (baud_cnt == 4'd0 && brg_en) begin
           shift = '1;
         end
         if (bit_cnt == 4'd10) begin
