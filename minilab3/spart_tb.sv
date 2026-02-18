@@ -27,7 +27,7 @@ module spart_tb();
     initial clk = 0;
     always #10 clk = ~clk;
 
-    // DUT Instantiation (SPART + Driver)
+    // DUT: SPART + Driver
     spart spart_dut (
         .clk(clk),
         .rst(rst),
@@ -53,7 +53,7 @@ module spart_tb();
         .databus(databus_dut)
     );
 
-    // TB SPART Instantiation (spart0)
+    // TB SPART (spart0) - acts as the terminal
     spart spart_tb_inst (
         .clk(clk),
         .rst(rst),
@@ -63,54 +63,79 @@ module spart_tb();
         .tbr(tbr_tb),
         .ioaddr(ioaddr_tb),
         .databus(databus_tb),
-        .txd(rxd_dut),  // TB Tx connects to DUT Rx
-        .rxd(txd_dut)   // TB Rx connects to DUT Tx
+        .txd(rxd_dut),   // TB Tx -> DUT Rx
+        .rxd(txd_dut)    // DUT Tx -> TB Rx
     );
 
-    // Tasks for TB SPART interaction
+    // Write a register on the TB SPART
     task write_reg(input [1:0] addr, input [7:0] data);
     begin
         @(posedge clk);
-        iocs_tb = 1;
-        iorw_tb = 0;
-        ioaddr_tb = addr;
-        tb_data_out = data;
-        tb_bus_oe = 1;
+        iocs_tb   <= 1'b1;
+        iorw_tb   <= 1'b0;
+        ioaddr_tb <= addr;
+        tb_data_out <= data;
+        tb_bus_oe <= 1'b1;
         @(posedge clk);
-        iocs_tb = 0;
-        tb_bus_oe = 0;
+        iocs_tb   <= 1'b0;
+        tb_bus_oe <= 1'b0;
     end
     endtask
 
+    // Read a register on the TB SPART
     task read_reg(input [1:0] addr, output [7:0] data);
     begin
         @(posedge clk);
-        iocs_tb = 1;
-        iorw_tb = 1;
-        ioaddr_tb = addr;
+        iocs_tb   <= 1'b1;
+        iorw_tb   <= 1'b1;
+        ioaddr_tb <= addr;
+        tb_bus_oe <= 1'b0;
         @(posedge clk);
         data = databus_tb;
-        iocs_tb = 0;
+        iocs_tb <= 1'b0;
     end
     endtask
 
-    // Monitoring process (Printing echoed characters)
-    reg [7:0] rx_char;
-    initial begin
-        forever begin
+    // Send one character and wait for the echo, then print it
+    task send_and_receive(input [7:0] tx_char);
+        reg [7:0] rx_char;
+        integer timeout;
+    begin
+        // Wait for TB SPART transmitter to be ready
+        while (!tbr_tb) @(posedge clk);
+
+        $display("[TB SEND]    time=%0t  Sending: %c (0x%02h)", $time, tx_char, tx_char);
+        write_reg(2'b00, tx_char);
+
+        // Wait for TBR to drop (transmission started)
+        repeat (5) @(posedge clk);
+
+        // Wait for TBR to return (transmission finished)
+        while (!tbr_tb) @(posedge clk);
+
+        // Now wait for echoed character to arrive (RDA goes high)
+        timeout = 0;
+        while (!rda_tb && timeout < 500000) begin
             @(posedge clk);
-            if (rda_tb) begin
-                read_reg(2'b00, rx_char);
-                $display("[TB RECEIVE] Character echoed back: %c (0x%h)", rx_char, rx_char);
-            end
+            timeout = timeout + 1;
+        end
+
+        if (rda_tb) begin
+            read_reg(2'b00, rx_char);
+            $display("[TB RECEIVE] time=%0t  Echoed:  %c (0x%02h)", $time, rx_char, rx_char);
+            if (rx_char !== tx_char)
+                $display("[TB ERROR]   Mismatch! Expected 0x%02h, Got 0x%02h", tx_char, rx_char);
+        end else begin
+            $display("[TB ERROR]   time=%0t  Timeout waiting for echo of %c", $time, tx_char);
         end
     end
+    endtask
 
-    // Test sequence
+    // Main test
     initial begin
-        // Initialize signals
+        // Initialize
         rst = 1;
-        br_cfg = 2'b01; // 9600 Baud
+        br_cfg = 2'b01;  // 9600 baud
         iocs_tb = 0;
         iorw_tb = 1;
         ioaddr_tb = 2'b00;
@@ -118,47 +143,37 @@ module spart_tb();
         tb_data_out = 8'h00;
 
         // Reset pulse
-        repeat (5) @(posedge clk);
+        repeat (10) @(posedge clk);
         rst = 0;
         repeat (10) @(posedge clk);
 
-        // 1. Initialize TB SPART baud rate to 9600 (divisor 325 = 0x0145)
-        $display("[TB] Initializing SPART0 baud rate to 9600...");
-        write_reg(2'b10, 8'h45); // Low byte
-        write_reg(2'b11, 8'h01); // High byte
-        
-        // Wait for driver to finish its initialization (takes a few cycles)
+        // Initialize TB SPART baud rate (divisor 325 = 0x0145 for 9600 @ 50MHz)
+        $display("[TB] Initializing baud rate to 9600...");
+        write_reg(2'b10, 8'h45);  // Low byte
+        write_reg(2'b11, 8'h01);  // High byte
+
+        // Let driver finish its init
         repeat (20) @(posedge clk);
 
-        // 2. Send characters to DUT
-        send_char("H");
-        send_char("e");
-        send_char("l");
-        send_char("l");
-        send_char("o");
-        send_char(",");
-        send_char(" ");
-        send_char("W");
-        send_char("o");
-        send_char("r");
-        send_char("l");
-        send_char("d");
-        send_char("!");
+        // Send characters one at a time and wait for echo
+        $display("[TB] Starting echo test...");
+        send_and_receive("H");
+        send_and_receive("e");
+        send_and_receive("l");
+        send_and_receive("l");
+        send_and_receive("o");
+        send_and_receive("!");
 
-        // Wait for all echoes to complete
-        #1000000; // Wait 1ms (serial is slow)
-        
-        $display("[TB] Simulation complete.");
-        $stop;
+        $display("[TB] All characters sent and echoed. Test complete.");
+        #1000;
+        $finish;
     end
 
-    task send_char(input [7:0] c);
-    begin
-        $display("[TB SEND] Sending character: %c (0x%h)", c, c);
-        // Wait for TB SPART to be ready to transmit
-        while (!tbr_tb) @(posedge clk);
-        write_reg(2'b00, c);
+    // Safety timeout
+    initial begin
+        #100_000_000;
+        $display("[TB] TIMEOUT - simulation exceeded 100ms");
+        $finish;
     end
-    endtask
 
 endmodule
